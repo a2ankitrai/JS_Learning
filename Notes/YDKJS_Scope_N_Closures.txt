@@ -1,0 +1,28 @@
+Unit 2: Scope & Closures
+=========================
+
+Chapter 1: What is Scope?
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compiler Theory
+---------------
+
+JavaScript is in fact a compiled language. It is not compiled well in advance, as are many traditionally-compiled languages, nor are the results of compilation portable among various distributed systems.
+
+JS Cast
+--------
+
+1. Engine: responsible for start-to-finish compilation and execution of our JavaScript program.
+
+2. Compiler: one of Engine's friends; handles all the dirty work of parsing and code-generation (see previous section).
+
+3. Scope: another friend of Engine; collects and maintains a look-up list of all the declared identifiers (variables), and enforces a strict set of rules as to how these are accessible to currently executing code.
+
+Scope
+-----
+Scope is the set of rules that determines where and how a variable (identifier) can be looked-up. This look-up may be for the purposes of assigning to the variable, which is an LHS (left-hand-side) reference, or it may be for the purposes of retrieving its value, which is an RHS (right-hand-side) reference.
+
+LHS references result from assignment operations. Scope-related assignments can occur either with the = operator or by passing arguments to (assign to) function parameters.
+
+ReferenceError is Scope resolution-failure related, whereas TypeError implies that Scope resolution was successful, but that there was an illegal/impossible action attempted against the result.
+
