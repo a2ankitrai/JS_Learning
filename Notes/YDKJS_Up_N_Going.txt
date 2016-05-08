@@ -263,7 +263,7 @@ new foo();          // undefined
 
 There are four rules for how this gets set, and they're shown in those last four lines of that snippet.
 
-1.	foo() ends up setting this to the global object in non-strict mode -- in strict mode, this would be undefined and you'd get an error in 		accessing the bar property -- so "global" is the value found for this.bar.
+1.	foo() ends up setting this to the global object in non-strict mode -- in strict mode, this would be undefined and you'd get an error in accessing the bar property -- so "global" is the value found for this.bar.
 
 2.	obj1.foo() sets this to the obj1 object.
 
