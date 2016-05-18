@@ -3,3 +3,114 @@ Chapter 3: Function vs. Block Scope
 
 Scope From Functions
 ====================
+JavaScript has function-based scope. That is, each function you declare creates a bubble for itself.
+
+Function scope encourages the idea that all variables belong to the function, and can be used and reused throughout the entirety of the function (and indeed, accessible even to nested scopes). This design approach can be quite useful, and certainly can make full use of the "dynamic" nature of JavaScript variables to take on values of different types as needed.
+
+
+Hiding In Plain Scope
+======================
+The traditional way of thinking about functions is that you declare a function, and then add code inside it. But the inverse thinking is equally powerful and useful: take any arbitrary section of code you've written, and wrap a function declaration around it, which in effect "hides" the code.
+
+The practical result is to create a scope bubble around the code in question, which means that any declarations (variable or function) in that code will now be tied to the scope of the new wrapping function, rather than the previously enclosing scope. In other words, you can "hide" variables and functions by enclosing them in the scope of a function.
+
+There's a variety of reasons motivating this scope-based hiding. They tend to arise from the software design principle 
+
+"Principle of Least Privilege" [^note-leastprivilege], also sometimes called "Least Authority" or "Least Exposure". This principle states that in the design of software, such as the API for a module/object, you should expose only what is minimally necessary, and "hide" everything else.
+
+
+Collision Avoidance
+===================
+Another benefit of "hiding" variables and functions inside a scope is to avoid unintended collision between two different identifiers with the same name but different intended usages. Collision results often in unexpected overwriting of values.
+
+
+Anonymous vs. Named
+===================
+
+setTimeout( function(){
+    console.log("I waited 1 second!");
+}, 1000 );
+
+This is called an "anonymous function expression", because function()... has no name identifier on it. Function expressions can be anonymous, but function declarations cannot omit the name -- that would be illegal JS grammar.
+
+Inline function expressions are powerful and useful -- the question of anonymous vs. named doesn't detract from that. Providing a name for your function expression quite effectively addresses all these draw-backs, but has no tangible downsides. The best practice is to always name your function expressions:
+
+setTimeout( function timeoutHandler(){ // <-- Look, I have a name!
+    console.log( "I waited 1 second!" );
+}, 1000 );
+
+Invoking Function Expressions Immediately
+=========================================
+
+var a = 2;
+
+(function IIFE( global ){
+
+    var a = 3;
+    console.log( a ); // 3
+    console.log( global.a ); // 2
+
+})( window );
+
+console.log( a ); // 2
+
+We pass in the window object reference, but we name the parameter global, so that we have a clear stylistic delineation for global vs. non-global references. Of course, you can pass in anything from an enclosing scope you want, and you can name the parameter(s) anything that suits you. This is mostly just stylistic choice.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Still another variation of the IIFE inverts the order of things, where the function to execute is given second, after the invocation and parameters to pass to it. This pattern is used in the UMD (Universal Module Definition) project. Some people find it a little cleaner to understand, though it is slightly more verbose.
+
+var a = 2;
+
+(function IIFE( def ){
+    def( window );
+})(function def( global ){
+
+    var a = 3;
+    console.log( a ); // 3
+    console.log( global.a ); // 2
+
+});
+
+The def function expression is defined in the second-half of the snippet, and then passed as a parameter (also called def) to the IIFE function defined in the first half of the snippet. Finally, the parameter def (the function) is invoked, passing window in as the global parameter.
+
+Blocks As Scopes
+~~~~~~~~~~~~~~~~~~
+
+The sad reality is that, on the surface, JavaScript has no facility for block scope.
+That is, until you dig a little further.
+
+try/catch
+=========
+JavaScript in ES3 specified the variable declaration in the catch clause of a try/catch to be block-scoped to the catch block.
+
+try {
+    undefined(); // illegal operation to force an exception!
+}
+catch (err) {
+    console.log( err ); // works!
+}
+
+console.log( err ); // ReferenceError: `err` not found
+
+err exists only in the catch clause, and throws an error when you try to reference it elsewhere.
+ 
+let
+====
+ES6 introduces a new keyword let which sits alongside var as another way to declare variables. The let keyword attaches the variable declaration to the scope of whatever block (commonly a { .. } pair) it's contained in. In other words, let implicitly hijacks any block's scope for its variable declaration.
+
+var foo = true;
+
+if (foo) {
+    let bar = foo * 2;
+    bar = something( bar );
+    console.log( bar );
+}
+
+console.log( bar ); // ReferenceError
+
+
+
+
+
+
