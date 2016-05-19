@@ -106,8 +106,7 @@ if (foo) {
     bar = something( bar );
     console.log( bar );
 }
-
-console.log( bar ); // ReferenceError
+console.log( bar ); // ReferenceError 
 
 
 
