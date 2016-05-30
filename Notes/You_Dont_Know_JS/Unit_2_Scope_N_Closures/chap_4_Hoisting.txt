@@ -1,3 +1,52 @@
-Chapter 3: Hoisting
+Chapter 4: Hoisting
 -------------------
+
+Variables are attached to different levels of scope depending on where and how they are declared. Both function scope and block scope behave by the same rules in this regard: any variable declared within a scope is attached to that scope.
+
+Chicken Or The Egg?
+~~~~~~~~~~~~~~~~~~~
+
+Consider this code:
+
+a = 2;
+var a;
+console.log( a );
+
+Many developers would expect undefined in the console.log(..) statement, since the var a statement comes after the a = 2, and it would seem natural to assume that the variable is re-defined, and thus assigned the default undefined. However, the output will be 2.
+
+Consider another piece of code:
+
+console.log( a );
+var a = 2;
+
+You might be tempted to assume that, since the previous snippet exhibited some less-than-top-down looking behavior, perhaps in this snippet, 2 will also be printed. Others may think that since the a variable is used before it is declared, this must result in a ReferenceError being thrown.
+
+Unfortunately, both guesses are incorrect. undefined is the output.
+
+The Compiler Strikes Again
+==========================
+
+All declarations, both variables and functions, are processed first, before any part of your code is executed.
+When you see var a = 2;, you probably think of that as one statement. But JavaScript actually thinks of it as two statements: var a; and a = 2;. The first statement, the declaration, is processed during the compilation phase. The second statement, the assignment, is left in place for the execution phase.
+
+Our first snippet then should be thought of as being handled like this:
+
+var a;
+a = 2;
+
+console.log( a );
+...where the first part is the compilation and the second part is the execution.
+
+Similarly, our second snippet is actually processed as:
+
+var a;
+console.log( a );
+
+a = 2;
+
+variable and function declarations are "moved" from where they appear in the flow of the code to the top of the code. This gives rise to the name "Hoisting".
+
+In other words, the egg (declaration) comes before the chicken (assignment).
+
+
 
