@@ -103,3 +103,10 @@ Deep down in the guts of the Engine, the built-in utility setTimeout(..) has ref
 
 Essentially whenever and wherever you treat functions (which access their own respective lexical scopes) as first-class values and pass them around, you are likely to see those functions exercising closure. Be that timers, event handlers, Ajax requests, cross-window messaging, web workers, or any of the other asynchronous (or synchronous!) tasks, when you pass in a callback function, get ready to sling some closure around!
 
+-----------------------------------------------------------------------------------------
+
+Loops + Closure
+================
+
+
+
