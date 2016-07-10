@@ -199,3 +199,74 @@ for (let i=1; i<=5; i++) {
 Modules
 ~~~~~~~
 
+function CoolModule() {
+    var something = "cool";
+    var another = [1, 2, 3];
+
+    function doSomething() {
+        console.log( something );
+    }
+
+    function doAnother() {
+        console.log( another.join( " ! " ) );
+    }
+
+    return {
+        doSomething: doSomething,
+        doAnother: doAnother
+    };
+}
+
+var foo = CoolModule();
+
+foo.doSomething(); // cool
+foo.doAnother(); // 1 ! 2 ! 3
+
+This is the pattern in JavaScript we call module. The most common way of implementing the module pattern is often called "Revealing Module", and it's the variation we present here.
+
+some things about this code:
+----------------------------
+Firstly, CoolModule() is just a function, but it has to be invoked for there to be a module instance created. Without the execution of the outer function, the creation of the inner scope and the closures would not occur.
+
+Secondly, the CoolModule() function returns an object, denoted by the object-literal syntax { key: value, ... }. The object we return has references on it to our inner functions, but not to our inner data variables. We keep those hidden and private. It's appropriate to think of this object return value as essentially a public API for our module.
+
+This object return value is ultimately assigned to the outer variable foo, and then we can access those property methods on the API, like foo.doSomething().
+
+Note: It is not required that we return an actual object (literal) from our module. We could just return back an inner function directly. jQuery is actually a good example of this. The jQuery and $ identifiers are the public API for the jQuery "module", but they are, themselves, just a function (which can itself have properties, since all functions are objects).
+
+The doSomething() and doAnother() functions have closure over the inner scope of the module "instance" (arrived at by actually invoking CoolModule()). When we transport those functions outside of the lexical scope, by way of property references on the object we return, we have now set up a condition by which closure can be observed and exercised.
+
+To state it more simply, there are two "requirements" for the module pattern to be exercised:
+
+There must be an outer enclosing function, and it must be invoked at least once (each time creates a new module instance).
+
+The enclosing function must return back at least one inner function, so that this inner function has closure over the private scope, and can access and/or modify that private state.
+
+-----
+
+The code snippet above shows a standalone module creator called CoolModule() which can be invoked any number of times, each time creating a new module instance. A slight variation on this pattern is when you only care to have one instance, a "singleton" of sorts:
+
+var foo = (function CoolModule() {
+    var something = "cool";
+    var another = [1, 2, 3];
+
+    function doSomething() {
+        console.log( something );
+    }
+
+    function doAnother() {
+        console.log( another.join( " ! " ) );
+    }
+
+    return {
+        doSomething: doSomething,
+        doAnother: doAnother
+    };
+})();
+
+foo.doSomething(); // cool
+foo.doAnother(); // 1 ! 2 ! 3
+
+************************************************************************************************************************
+*Closure is when a function can remember and access its lexical scope even when it's invoked outside its lexical scope.*
+************************************************************************************************************************
