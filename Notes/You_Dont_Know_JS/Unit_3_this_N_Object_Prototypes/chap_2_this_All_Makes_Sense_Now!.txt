@@ -78,6 +78,7 @@ var obj = {
 };
 
 obj.foo(); // 2
+
 Firstly, notice the manner in which foo() is declared and then later added as a reference property onto obj. Regardless of whether foo() is initially declared on obj, or is added as a reference later (as this snippet shows), in neither case is the function really "owned" or "contained" by the obj object.
 
 However, the call-site uses the obj context to reference the function, so you could say that the obj object "owns" or "contains" the function reference at the time the function is called.
@@ -221,3 +222,171 @@ setTimeout( bar, 100 ); // 2
 bar.call( window ); // 2
 
 Let's examine how this variation works. We create a function bar() which, internally, manually calls foo.call(obj), thereby forcibly invoking foo with obj binding for this. No matter how you later invoke the function bar, it will always manually invoke foo with obj. This binding is both explicit and strong, so we call it hard binding.
+
+----------------------------------------------------------------------------------------------------------------
+
+The most typical way to wrap a function with a hard binding creates a pass-thru of any arguments passed and any return value received:
+
+function foo(something) {
+    console.log( this.a, something );
+    return this.a + something;
+}
+
+var obj = {
+    a: 2
+};
+
+var bar = function() {
+    return foo.apply( obj, arguments );
+};
+
+var b = bar( 3 ); // 2 3
+console.log( b ); // 5
+
+----------------------------------------------------------------------------------------------------------------
+
+Another way to express this pattern is to create a re-usable helper:
+
+function foo(something) {
+    console.log( this.a, something );
+    return this.a + something;
+}
+
+// simple `bind` helper
+function bind(fn, obj) {
+    return function() {
+        return fn.apply( obj, arguments );
+    };
+}
+
+var obj = {
+    a: 2
+};
+
+var bar = bind( foo, obj );
+
+var b = bar( 3 ); // 2 3
+console.log( b ); // 5
+
+----------------------------------------------------------------------------------------------------------------
+
+Since hard binding is such a common pattern, it's provided with a built-in utility as of ES5: Function.prototype.bind, and it's used like this:
+
+function foo(something) {
+    console.log( this.a, something );
+    return this.a + something;
+}
+
+var obj = {
+    a: 2
+};
+
+var bar = foo.bind( obj );
+
+var b = bar( 3 ); // 2 3
+console.log( b ); // 5
+
+*******************************************************************************************************************
+bind(..) returns a new function that is hard-coded to call the original function with the this context set as you specified.
+*********************************************************************************************************************
+
+Note: As of ES6, the hard-bound function produced by bind(..) has a .name property that derives from the original target function. For example: bar = foo.bind(..) should have a bar.name value of "bound foo", which is the function call name that should show up in a stack trace.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+new Binding
+~~~~~~~~~~~
+JavaScript has a "new" operator, and the code pattern to use it looks basically identical to what we see in those class-oriented languages; most developers assume that JavaScript's mechanism is doing something similar. However, there really is no connection to class-oriented functionality implied by "new" usage in JS.
+
+First, let's re-define what a "constructor" in JavaScript is. In JS, constructors are just functions that happen to be called with the "new" operator in front of them. They are not attached to classes, nor are they instantiating a class. They are not even special types of functions. They're just regular functions that are, in essence, hijacked by the use of "new" in their invocation.
+
+For example, the "Number(..)" function acting as a constructor, quoting from the ES5.1 spec:
+*******************************************************************************************************************
+15.7.2 The Number Constructor
+When Number is called as part of a new expression it is a constructor: it initialises the newly created object.
+*******************************************************************************************************************
+
+So, pretty much any ol' function, including the built-in object functions like Number(..) can be called with "new" in front of it, and that makes that function call a constructor call. This is an important but subtle distinction: there's really no such thing as "constructor functions", but rather construction calls of functions.
+
+When a function is invoked with new in front of it, otherwise known as a constructor call, the following things are done automatically:
+-
+	a brand new object is created (aka, constructed) out of thin air
+-
+	the newly constructed object is [[Prototype]]-linked
+-
+	the newly constructed object is set as the "this" binding for that function call
+-
+	unless the function returns its own alternate object, the new-invoked function call will automatically return the newly 		constructed object.
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Everything In Order
+===================
+the default binding is the lowest priority rule of the 4.
+
+explicit binding takes precedence over implicit binding.
+
+new binding is more precedent than implicit binding.
+
+hard binding (which is a form of explicit binding) is more precedent than new binding, and thus cannot be overridden with new.
+
+-------------------------------------------------------------------------------------------------------------------------------------
+Determining this
+================
+the rules for determining this from a function call's call-site, in their order of precedence.
+
+1. 	Is the function called with new (new binding)? If so, this is the newly constructed object.
+	var bar = new foo()
+	
+2. 	Is the function called with call or apply (explicit binding), even hidden inside a bind hard binding? If so, this is the explicitly specified object.	
+	var bar = foo.call( obj2 )
+	
+3. 	Is the function called with a context (implicit binding), otherwise known as an owning or containing object? If so, this is that context object.
+	var bar = obj1.foo()
+	
+4.	Otherwise, default the this (default binding). If in strict mode, pick undefined, otherwise pick the global object.
+	var bar = foo()	
+-------------------------------------------------------------------------------------------------------------------------------------
+	
+Binding Exceptions	
+==================
+
+Ignored this
+~~~~~~~~~~~~
+	If you pass null or undefined as a this binding parameter to call, apply, or bind, those values are effectively ignored, and instead the default binding rule applies to the invocation.
+	
+	function foo() {
+		console.log( this.a );
+	}
+
+	var a = 2;
+
+	foo.call( null ); // 2
+
+
+
+Lexical this
+============
+Arrow-functions are signified not by the function keyword, but by the => so called "fat arrow" operator. Instead of using the four standard this rules, arrow-functions adopt the this binding from the enclosing (function or global) scope.
+
+Let's illustrate arrow-function lexical scope:
+
+function foo() {
+    // return an arrow function
+    return (a) => {
+        // `this` here is lexically adopted from `foo()`
+        console.log( this.a );
+    };
+}
+
+var obj1 = {
+    a: 2
+};
+
+var obj2 = {
+    a: 3
+};
+
+var bar = foo.call( obj1 );
+bar.call( obj2 ); // 2, not 3!
+
+The arrow-function created in foo() lexically captures whatever foo()s this is at its call-time. Since foo() was this-bound to obj1, bar (a reference to the returned arrow-function) will also be this-bound to obj1. The lexical binding of an arrow-function cannot be overridden (even with new!).
