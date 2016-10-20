@@ -66,7 +66,7 @@ There are several other object sub-types, usually referred to as built-in object
 
 - `RegExp`
 
-- `Error
+- `Error`
 
 
 In JS, these are actually just built-in functions. Each of these built-in functions can be used as a constructor (that is, a function call with the new operator), with the result being a newly constructed object of the sub-type in question. For instance:
@@ -163,9 +163,22 @@ It's tempting to think of the function as belonging to the object, and in other 
 
 Technically, functions never "belong" to objects, so saying that a function that just happens to be accessed on an object reference is automatically a "method" seems a bit of a stretch of semantics.
 
-It is true that some functions have this references in them, and that sometimes these this references refer to the object reference at the call-site. But this usage really does not make that function any more a "method" than any other function, as this is dynamically bound at run-time, at the call-site, and thus its relationship to the object is indirect, at best.
+It is true that some functions have `this` references in them, and that sometimes these `this` references refer to the object reference at the call-site. But this usage really does not make that function any more a "method" than any other function, as `this` is dynamically bound at run-time, at the call-site, and thus its relationship to the object is indirect, at best.
 
+### Arrays
 
+Arrays are objects, so even though each index is a positive integer, you can also add properties onto the array:
+
+```javascript
+var myArray = [ "foo", 42, "bar" ];
+
+myArray.baz = "baz";
+
+myArray.length; // 3
+
+myArray.baz;    // "baz"
+```
+Notice that adding named properties (regardless of . or [ ] operator syntax) does not change the reported length of the array.
 
 
 
