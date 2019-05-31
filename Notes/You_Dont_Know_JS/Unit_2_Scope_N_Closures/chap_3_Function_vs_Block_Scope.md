@@ -19,7 +19,7 @@ There's a variety of reasons motivating this scope-based hiding. They tend to ar
 ***Principle of Least Privilege*** [note-`leastprivilege`], also sometimes called **Least Authority** or **Least Exposure**. This principle states that in the design of software, such as the API for a module/object, you should expose only what is minimally necessary, and **hide** everything else.
 
 
-##Collision Avoidance
+## Collision Avoidance
 
 Another benefit of **hiding** variables and functions inside a scope is to avoid unintended collision between two different identifiers with the same name but different intended usages. Collision results often in unexpected overwriting of values.
 

@@ -46,7 +46,8 @@ console.log( a );
 ...where the first part is the compilation and the second part is the execution.
 
 Similarly, our second snippet is actually processed as:
-``````
+
+```
 var a;
 console.log( a );
 
